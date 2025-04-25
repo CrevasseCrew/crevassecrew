@@ -1,0 +1,34 @@
+site_name: Crevasse Crew
+site_description: Helping you navigate enterprise networking challenges
+site_url: https://crevassecrew.com
+
+theme:
+  name: material
+  features:
+    - navigation.indexes
+    - navigation.footer
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+  palette:
+    scheme: slate
+  icon:
+    logo: fontawesome/solid/route
+
+plugins:
+  - search
+  - blog:
+      blog_dir: .
+
+nav:
+  - Home: index.md
+
+extra:
+  generator: false
+
+markdown_extensions:
+  - toc:
+      permalink: true
+      title: On this page
