@@ -1,6 +1,7 @@
 site_name: Crevasse Crew
 site_description: Helping you navigate enterprise networking challenges
 site_url: https://www.crevassecrew.com
+repo_url: https://github.com/CrevasseCrew
 
 theme:
   name: material
