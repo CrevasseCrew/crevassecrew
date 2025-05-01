@@ -13,7 +13,7 @@ In this article we will explore the various methods used for [authenticating](ht
 
 ### Minimum Required Configuration
 
-The PANOS API requires, at a minimum, that a local administrator account exists with any of the Dynamic administrator types (e.g. superuser, device administrator, etc.). Other than in a lab environment it would not be recommended to use a local account that multiple administrators have access to, for authenticating requests of any form to your appliance. Accounts should always be attributable to a single user or function and given only the access that is necessary for that user/function. This is discribed in the subsequent section.
+The PANOS API requires, at a minimum, that a local administrator account exists with any of the Dynamic administrator types (e.g. superuser, device administrator, etc.). Other than in a lab environment it would not be recommended to use a local account that multiple administrators have access to, for authenticating requests of any form to your appliance. Accounts should always be attributable to a single user or function and given only the access that is necessary for that user/function. This is described in the subsequent section.
 
 ### Least Privileged Access with Admin Roles
 
@@ -35,7 +35,7 @@ A common recommendation is that API keys should be rotated every 30 to 90 days. 
 
 You should reference your organization best practices when determining to API key lifetime. In some cases the guideline may fall under a more general guideline around user/system authentication.
 
-In my opinion, there is no reason that the value shouldn't be similar to that of the standard Idle Timeout for administrator logins, especially if you allow administrators to access the API. If you must be in compliance with NIST or CIS, administrator login idle timeout values usually need to be 20 minutes or less. Although Palo Alto's Idle Timeout is detecting inactivity in an admin session, API key lifetime isn't measured between API calls, but from the point in timethe key is generated regardless of how many API queries are made after that. What you may find is that some external platforms/products which use the API don't effectively check for API key duration and renew their API key when making a series of subsequent calls.
+In my opinion, there is no reason that the value shouldn't be similar to that of the standard Idle Timeout for administrator logins, especially if you allow administrators to access the API. If you must be in compliance with NIST or CIS, administrator login idle timeout values usually need to be 20 minutes or less. Although Palo Alto's Idle Timeout is detecting inactivity in an admin session, API key lifetime isn't measured between API calls, but from the point in time the key is generated regardless of how many API queries are made after that. What you may find is that some external platforms/products which use the API don't effectively check for API key duration and renew their API key when making a series of subsequent calls.
 
 ## Authentication Examples
 
@@ -44,7 +44,7 @@ In my opinion, there is no reason that the value shouldn't be similar to that of
 The preferred method for authenticating against the PANOS API is to generate an API key. This ensures that the username and password is only passed once to the device and subsequent API queries pass the timebound API key which will expire (as long as you have properly set an API key lifetime) . To generate an API key can use the /api/$type=keygen URL path on your Palo Alto appliance.
 
 !!! note
-    If you're using special characters in the password, cURL may require that you use different options such as --data-urlencode for submitting form data. This will ensure that cURL interpret the special characters as part of the value associated with a form field and not part of the parametization of the key/value pairs. In the below example the password has an & character which would fail when using the -d cURL flag but is successfully passed when using --data-urlencode. Python's Request module already URL encodes the data values, so no additional changes are required.
+    If you're using special characters in the password, cURL may require that you use different options such as --data-urlencode for submitting form data. This will ensure that cURL interpret the special characters as part of the value associated with a form field and not part of the parametrization of the key/value pairs. In the below example the password has an & character which would fail when using the -d cURL flag but is successfully passed when using --data-urlencode. Python's Request module already URL encodes the data values, so no additional changes are required.
 
 !!! warning
     Follow best practices when handling any form of credential/secret in code. The intent of this post is not meant to cover secure code practices, but to provide examples of working with the Palo Alto PANOS API.
@@ -91,7 +91,7 @@ Now that you have an API key you can use it in subsequent API calls. This exampl
     -d cmd='<show><system><info></info></system></show>'
     ```
 
-The XML response to the API query for the operational command of 'show systme info' would look like the following:
+The XML response to the API query for the operational command of 'show system info' would look like the following:
 ```xml
 <response status="success">
   <result>
@@ -151,7 +151,7 @@ The XML response to the API query for the operational command of 'show systme in
 ```
 ### Alternative Authentication Method
 !!! warning
-    I would discourage using the method mentioned in this section. The point of covering this is to hightlight the method that Palo Alto encourages people to use, and to discuss the reasons for not using this method.
+    I would discourage using the method mentioned in this section. The point of covering this is to highlight the method that Palo Alto encourages people to use, and to discuss the reasons for not using this method.
 
 Alternatively, Palo Alto [encourages](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-panorama-api/get-started-with-the-pan-os-xml-api/authenticate-your-api-requests) you to use HTTP basic auth to authenticate API requests. They make no mention of using the API key that was [previously obtained](https://docs.paloaltonetworks.com/pan-os/10-2/pan-os-panorama-api/get-started-with-the-pan-os-xml-api/get-your-api-key). Generally speaking, basic auth should be discouraged as you are continually passing the username and password in every HTTP request in clear text. Basic auth only base 64 encodes the username and password and is easily reversable (decoded).
 
@@ -201,5 +201,5 @@ The above Python code results in the following string being returned.
 b'-AQ==GwwB8/4KxjwYLSMenpi8Cu0CdlE=GnMIX2c+2TL8VfQjGSk76nvMfzeq7qVjZlcSFv7pCK4A3hZAl377mqbQXF7I8VNX95j3SU8+PaeYMOFi//7m0Q=='
 ```
 
-If you take the string contained between the single quotes to the [PANOS Crypto Tools](https://nothing4you.github.io/panos-crypto-tools/) site, you can decrypte the string further and see that it returns the username and password you have seen in previous examples within this post.
+If you take the string contained between the single quotes to the [PANOS Crypto Tools](https://nothing4you.github.io/panos-crypto-tools/) site, you can decrypt the string further and see that it returns the username and password you have seen in previous examples within this post.
 
