@@ -203,3 +203,58 @@ b'-AQ==GwwB8/4KxjwYLSMenpi8Cu0CdlE=GnMIX2c+2TL8VfQjGSk76nvMfzeq7qVjZlcSFv7pCK4A3
 
 If you take the string contained between the single quotes to the [PANOS Crypto Tools](https://nothing4you.github.io/panos-crypto-tools/) site, you can decrypt the string further and see that it returns the username and password you have seen in previous examples within this post.
 
+## Subsequent API Query Authentication Behaviour
+
+When using an API key across multiple API queries, its important to note that the username and password thats encrypted and encoded within the API key is authenticated for each request. Deleting an admin account or changing its password will render the API key ineffective.
+
+!!! note
+    If admins are remotely authenticated (e.g. using RADIUS) and use a pin+token based password, such as with RSA, any API query after obtaining the API key will fail due to the single-user nature of this type of authentication method. To make subsequent API calls with this type of authentication method refer to the Persistent API Sessions section below.
+
+To observe the behaviour, the first step is to generate the API key:
+
+```xml
+curl -k -H "Content-Type: application/x-www-form-urlencoded" \
+-X POST 'https://192.168.12.50/api/?type=keygen' \
+-d 'user=apiuser' \
+--data-urlencode 'password=JNn0Sg444s7D0jy5&'
+<response status = 'success'><result><key>LUFRPT1IanVrY0k4aUFtUURsaks0MmZ5T2VxNytUckE9R25NSVgyYysyVEw4VmZRakdTazc2bnZNZnplcTdxVmpabGNTRnY3cENLNUl5ZXB4ZDhUVkNJR0Y4VTdXS2pRdFhtU2tPMnp5MEdKejgzTGJsbnpsRmc9PQ==</key></result></response>
+```
+
+Confirm that you're able to query the API using the key:
+
+```xml
+curl -k -H "X-PAN-KEY: LUFRPT1IanVrY0k4aUFtUURsaks0MmZ5T2VxNytUckE9R25NSVgyYysyVEw4VmZRakdTazc2bnZNZnplcTdxVmpabGNTRnY3cENLNUl5ZXB4ZDhUVkNJR0Y4VTdXS2pRdFhtU2tPMnp5MEdKejgzTGJsbnpsRmc9PQ==" \
+-G 'https://192.168.12.50/api/' \
+-d type=op \
+-d cmd='<show><system><info></info></system></show>'
+<response status="success"><result>...Removed for brevity...</result></response>
+```
+
+Then change the password associated with the apiuser account (there isn't a method to disable an account). Query the API again and you'll see that an HTTP 403 error is returned:
+
+```xml
+curl -k -H "X-PAN-KEY: LUFRPT1IanVrY0k4aUFtUURsaks0MmZ5T2VxNytUckE9R25NSVgyYysyVEw4VmZRakdTazc2bnZNZnplcTdxVmpabGNTRnY3cENLNUl5ZXB4ZDhUVkNJR0Y4VTdXS2pRdFhtU2tPMnp5MEdKejgzTGJsbnpsRmc9PQ==" \
+-G 'https://192.168.12.50/api/' \
+-d type=op \
+-d cmd='<show><system><info></info></system></show>'
+<response status = 'error' code = '403'><result><msg>Invalid Credential</msg></result></response>
+```
+
+Finally, set the password associated with the apiuser account back to the original password that you used to obtain the API key. Query the API again and you'll see that a successful response is returned:
+
+```xml
+curl -k -H "X-PAN-KEY: LUFRPT1IanVrY0k4aUFtUURsaks0MmZ5T2VxNytUckE9R25NSVgyYysyVEw4VmZRakdTazc2bnZNZnplcTdxVmpabGNTRnY3cENLNUl5ZXB4ZDhUVkNJR0Y4VTdXS2pRdFhtU2tPMnp5MEdKejgzTGJsbnpsRmc9PQ==" \
+-G 'https://192.168.12.50/api/' \
+-d type=op \
+-d cmd='<show><system><info></info></system></show>'
+<response status="success"><result>...Removed for brevity...</result></response>
+```
+
+## Persistent API Sessions
+
+As mentioned in the above section, if using a remote authentication method that leverages single-use passwords (e.g. pin+token), subsequent API calls will fail in the Python and cURL methods shown so far in this post. However, you can create a [Python Requests session object](https://requests.readthedocs.io/en/latest/user/advanced/#session-objects) to maintain a persistent HTTP session which allows you to send multiple API queries.
+
+=== "Python"
+    ```py linenums="1" hl_lines="18 19 39 47"
+    --8<-- "snippets/panos_api_auth_session.py"
+    ```
