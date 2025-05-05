@@ -1,6 +1,11 @@
 ---
 date:
   created: 2025-04-29
+categories:
+  - Programmability
+tags:
+  - Palo Alto
+  - Automation
 ---
 
 # Palo Alto PANOS API Authentication
